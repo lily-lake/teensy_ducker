@@ -40,6 +40,10 @@ bool AudioEffectCompressor::begin(float compression_threshold = -20.0f,
   set_default_values(compression_threshold, compression_ratio, attack_ms,
                      release_ms);
 
+  this->alpha_attack =
+      exp(-1.0 / (this->sample_rate * attack_ms * 1000)); // aA = e^(-1/TA*fs)
+  this->alpha_release =
+      exp(-1.0 / (this->sample_rate * release_ms * 1000)); // aA = e^(-1/TA*fs)
   return (true);
 }
 
@@ -166,15 +170,27 @@ float AudioEffectCompressor::apply_ballistics(float reduction) {
   if (attack_samples_elapsed > 0) {
     float attack_samples = ms_to_samples(this->attack_ms);
     float attack_ratio = attack_samples_elapsed / attack_samples;
-    return attack_ratio;
+    return reduction * attack_ratio;
   }
   if (release_samples_elapsed > 0) {
     float release_samples = ms_to_samples(this->release_ms);
     float release_ratio = release_samples_elapsed / release_samples;
-    return release_ratio;
+    return reduction * release_ratio;
   }
   ratio = 0.0f;
   return ratio;
+}
+
+float AudioEffectCompressor::process_peak_branched(float sample) {
+  if (sample < prev_filter_state) {
+    prev_filter_state =
+        alpha_attack * prev_filter_state + (1 - alpha_attack) * sample;
+  } else {
+
+    prev_filter_state =
+        alpha_release * prev_filter_state + (1 - alpha_release) * sample;
+  }
+  return prev_filter_state;
 }
 
 float AudioEffectCompressor::compress_dBFS(float dBFS) {
@@ -189,10 +205,13 @@ float AudioEffectCompressor::compress_dBFS(float dBFS) {
   float reduction = dBFS - this->compression_threshold;
   // amount cut can only be proportional to point in attack curve
   // reduction = apply_attack_ratio(reduction);
-  reduction = apply_ballistics(reduction);
+  // reduction = apply_ballistics(reduction);
+
   // makeup gain
   float makeup_gain = reduction / this->compression_ratio;
   float output = dBFS - reduction + makeup_gain;
+  // ballistics
+  output = process_peak_branched(output);
 
   // if (count % 3000 == 0) {
   //   Serial.print("compression_threshold = ");
