@@ -45,20 +45,34 @@ public:
 
 private:
   audio_block_t *inputQueueArray[1];
+  /*
+   * gain computer
+   */
   float compression_threshold;
   float compression_ratio;
+  // float knee;
+  // float slope;
+  // void set_threshold(float);
+  // void set_ratio(float);
+  // void set_knee(float);
+  /*
+   * level detection
+   */
   float attack_ms;
   float release_ms;
+  float alpha_attack;
+  float alpha_release;
+  float prev_filter_state;
   // from audio library analyze_peak.h
   int max_sample = 32767;
   int min_sample = -32768;
+  float sample_rate = 44100;
   float dBFS(short sample);
   float compress_dBFS(float dBFS);
   short compress_sample(short sample, int i);
-  float apply_attack_ratio(float dBFS);
   float calculate_average_volume_db(audio_block_t *block);
   float apply_ballistics(float reduction);
-  float apply_release_ratio(float reduction);
+  float process_peak_branched(float sample);
 };
 
 #endif
