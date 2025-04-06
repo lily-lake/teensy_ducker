@@ -161,28 +161,17 @@ float ms_to_samples(float ms) {
 float attack_samples_elapsed = 0;
 int release_samples_elapsed = 0;
 
-float AudioEffectCompressor::apply_attack_ratio(float reduction) {
-  float attack_samples = ms_to_samples(this->attack_ms);
-  float ratio = attack_samples_elapsed / attack_samples;
-  return reduction * ratio;
-}
-
-float AudioEffectCompressor::apply_release_ratio(float reduction) {
-  float release_samples = ms_to_samples(this->release_ms);
-  float ratio = release_samples_elapsed / release_samples;
-  return reduction * ratio;
-}
-
 float AudioEffectCompressor::apply_ballistics(float reduction) {
   float ratio;
   if (attack_samples_elapsed > 0) {
-    ratio = apply_attack_ratio(reduction);
-    return ratio;
+    float attack_samples = ms_to_samples(this->attack_ms);
+    float attack_ratio = attack_samples_elapsed / attack_samples;
+    return attack_ratio;
   }
   if (release_samples_elapsed > 0) {
-
-    ratio = apply_release_ratio(reduction);
-    return ratio;
+    float release_samples = ms_to_samples(this->release_ms);
+    float release_ratio = release_samples_elapsed / release_samples;
+    return release_ratio;
   }
   ratio = 0.0f;
   return ratio;
