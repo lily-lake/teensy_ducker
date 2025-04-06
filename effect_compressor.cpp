@@ -197,35 +197,31 @@ float AudioEffectCompressor::compress_dBFS(float dBFS) {
   if (dBFS < compression_threshold) {
     return dBFS;
   }
-  // amount that signal exceeds threshold
-  // float difference = dBFS - this->compression_threshold;
-  // float gain = difference / this->compression_ratio;
-  // float output = this->compression_threshold + gain;
 
   float reduction = dBFS - this->compression_threshold;
-  // amount cut can only be proportional to point in attack curve
-  // reduction = apply_attack_ratio(reduction);
-  // reduction = apply_ballistics(reduction);
 
   // makeup gain
   float makeup_gain = reduction / this->compression_ratio;
-  float output = dBFS - reduction + makeup_gain;
+  float with_makeup_gain = dBFS - reduction + makeup_gain;
   // ballistics
-  output = process_peak_branched(output);
+  float output = process_peak_branched(with_makeup_gain);
 
-  // if (count % 3000 == 0) {
-  //   Serial.print("compression_threshold = ");
-  //   Serial.println(compression_threshold);
-  //   Serial.print("compression_ratio = ");
-  //   Serial.println(compression_ratio);
-  //   Serial.print("dBFS value = ");
-  //   Serial.println(dBFS);
-  //   Serial.print("difference = ");
-  //   Serial.println(difference);
-  //   Serial.print("gain = ");
-  //   Serial.println(gain);
-  //   Serial.print("output = ");
-  //   Serial.println(output);
+  // if (count % 30 == 0) {
+  //   // Serial.print("dBFS value = ");
+  //   // Serial.println(dBFS);
+  //   // Serial.print("makeup gain= ");
+  //   // Serial.println(makeup_gain);
+  //   // Serial.print("with makeup gain= ");
+  //   // Serial.println(with_makeup_gain);
+  //   // Serial.print("output = ");
+  //   // Serial.println(output);
+  //   Serial.print("delta = ");
+  //   float delta = dBFS - output;
+  //   for (int i = 0; i < delta; i++) {
+  //     Serial.print(">");
+  //   }
+  //   Serial.println();
+  //   // Serial.println(dBFS - output);
   // }
   return output;
 }
@@ -277,36 +273,36 @@ void AudioEffectCompressor::update(void) {
       compressed_block->data[i] = sample;
     }
   }
-  if (count % 3000 == 0) {
-    Serial.print("uncompressed values = ");
-    for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++) {
-      Serial.print(block->data[i]);
-      Serial.print(", ");
-    }
-    Serial.println("");
-
-    Serial.print("dBFS values = ");
-    for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++) {
-      Serial.print(dBFS_samples[i]);
-      Serial.print(", ");
-    }
-    Serial.println("");
-
-    Serial.print("compressed dBFS values = ");
-    for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++) {
-      Serial.print(dBFS_samples_compressed[i]);
-      Serial.print(", ");
-    }
-    Serial.println("");
-
-    Serial.print("compressed PCM values = ");
-    for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++) {
-      Serial.print(pcm_samples_compressed[i]);
-      Serial.print(", ");
-    }
-    Serial.println("");
-    Serial.println(" ");
-  }
+  // if (count % 3000 == 0) {
+  //   Serial.print("uncompressed values = ");
+  //   for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++) {
+  //     Serial.print(block->data[i]);
+  //     Serial.print(", ");
+  //   }
+  //   Serial.println("");
+  //
+  //   Serial.print("dBFS values = ");
+  //   for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++) {
+  //     Serial.print(dBFS_samples[i]);
+  //     Serial.print(", ");
+  //   }
+  //   Serial.println("");
+  //
+  //   Serial.print("compressed dBFS values = ");
+  //   for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++) {
+  //     Serial.print(dBFS_samples_compressed[i]);
+  //     Serial.print(", ");
+  //   }
+  //   Serial.println("");
+  //
+  //   Serial.print("compressed PCM values = ");
+  //   for (int i = 0; i < AUDIO_BLOCK_SAMPLES; i++) {
+  //     Serial.print(pcm_samples_compressed[i]);
+  //     Serial.print(", ");
+  //   }
+  //   Serial.println("");
+  //   Serial.println(" ");
+  // }
   transmit(compressed_block, 0);
   release(compressed_block);
   release(block);
