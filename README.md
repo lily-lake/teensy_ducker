@@ -1,9 +1,16 @@
-Teensy audio project sidechain ducker. Uses some chips, 1808 something and another one 
+Teensy audio project written in C++. Made for use as a low latency master FX chain for live performance. Takes two audio inputs, one for kick, one for main mix. Applies volume gate ducking, recombines signals, and applies compression and effects before passing to audio output. 
+### Implements: 
+- Volume gate ducking
+- Peaked branch detector compressor class
 
-Compressor diagram:
-https://raw.githubusercontent.com/p-hlp/CTAGDRC/refs/heads/master/Documentation/Base-Diagram.png
+### To-do: 
+- Parametric EQ
+- I2C knobs and faders
+- Saturator
 
-Todo:
-- install arduino language server: https://github.com/neovim/nvim-lspconfig/blob/master/lua/lspconfig/configs/arduino_language_server.lua
+### Compressor references: 
+- https://eecs.qmul.ac.uk/~josh/documents/2012/GiannoulisMassbergReiss-dynamicrangecompression-JAES2012.pdf
+- https://raw.githubusercontent.com/p-hlp/CTAGDRC/refs/heads/master/Documentation/Base-Diagram.png
 
-
+### Protoboard: 
+![signal-2025-04-07-122601](https://github.com/user-attachments/assets/3f9a0e9e-b30d-4a67-b71d-3f2196a5552a)
